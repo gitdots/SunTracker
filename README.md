@@ -9,12 +9,12 @@ Diploma project
      - [ ] supports light sensors
      - [ ] supports rotation horizontally
      - [ ] supports rotation vertically
-   - [ ] temperature sensors
-   - [ ] humidity sensors
-   - [ ] athmospheric pressure sensor
-   - [ ] wind speed sensor
-   - [ ] graphic LCD screen
-   - [ ] 2 DC motors for turret rotation
+   - [x] temperature sensors
+   - [x] humidity sensors
+   - [ ] (optional) athmospheric pressure sensor
+   - [ ] (optional) wind speed sensor
+   - [x] graphic LCD screen
+   - [x] 2 DC motors for turret rotation
    - [ ] WiFi module
    - [x] outlet power source 
 
