@@ -8,26 +8,26 @@ CREATE TABLE Devices (
 );
 
 CREATE TABLE Readings (
-    reading_time DATETIME,  -- timestamp of the reading
+    read_time DATETIME,  -- timestamp of the reading
     device_id INTEGER,   -- the device that performed the reading
-    ldr_up_left FLOAT(2, 2),    -- intensity of ldr
-    ldr_up_right FLOAT(2, 2),   
-    ldr_down_left FLOAT(2, 2),
-    ldr_down_right FLOAT(2, 2),
-    temperature FLOAT(2, 1),    -- temperature in degree Celsius
-    humidity FLOAT(2, 1),   -- relative humidity in percentage
+    lul FLOAT(2, 2),    -- intensity of ldr
+    lur FLOAT(2, 2),   
+    ldl FLOAT(2, 2),
+    ldr FLOAT(2, 2),
+    temp FLOAT(2, 1),    -- temperature in degree Celsius
+    hum FLOAT(2, 1),   -- relative humidity in percentage
+    angle0x INTEGER,
+    angle0y INTEGER,
     FOREIGN KEY (device_id) REFERENCES Devices(device_id)
 );
 
 CREATE TABLE DateSummary (
     summary_date DATE PRIMARY KEY,
     device_id INTEGER,
-    avg_temperature FLOAT(2, 1),
-    avg_humidity FLOAT(2, 1),
-    min_temperature FLOAT(2, 1),
-    max_temperature FLOAT(2, 1),
-    min_humidity FLOAT(2, 1),
-    max_humidity FLOAT(2, 1),
+    min_temp FLOAT(2, 1),
+    max_temp FLOAT(2, 1),
+    min_hum FLOAT(2, 1),
+    max_hum FLOAT(2, 1),
     FOREIGN KEY (device_id) REFERENCES Device(device_id)
 );
  

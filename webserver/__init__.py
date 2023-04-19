@@ -27,13 +27,13 @@ def create_app(test_config=None):
 
     database.initialize_app(app)
 
-    from .blueprints import device
-    app.register_blueprint(device.device_blueprint)
+    from .blueprints import device, date_summary, reading
+    app.register_blueprint(device.device_bp)
+    app.register_blueprint(date_summary.summary_bp)
+    app.register_blueprint(reading.reading_bp)
 
     @app.route('/')
     def index():
         return 'Hello world'
-    
-
 
     return app

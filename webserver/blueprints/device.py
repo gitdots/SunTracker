@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from webserver import database
 
-device_blueprint = Blueprint('device_blueprint', __name__, url_prefix='/devices')
+device_bp = Blueprint('device_bp', __name__, url_prefix='/devices')
 
 # read all devices
-@device_blueprint.route('/', methods = ['GET', 'POST'])
+@device_bp.route('/', methods = ['GET', 'POST'])
 def devices():
     if request.method == 'GET':
         get_req_message = 'Getting the devices from the database'
@@ -61,7 +61,7 @@ def devices():
         )
 
     
-@device_blueprint.route('/devices/<int:id>', methods = ['PUT', 'DELETE'])
+@device_bp.route('/devices/<int:id>', methods = ['PUT', 'DELETE'])
     
 # Updates the specified device
 def update_device(id):
