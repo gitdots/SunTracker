@@ -6,7 +6,7 @@
 #include <linux/spi/spidev.h>
 
 #include "Mcp3008.hpp"
-#include "Pins.hpp"
+#include "Utils.hpp"
 
 using namespace std;
 

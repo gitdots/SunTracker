@@ -1,16 +1,22 @@
 #ifndef SERVOMOTOR_HPP
 #define SERVOMOTOR_HPP
 
-class Servomotor {
+#include <string>
 
-    private:
-        int angle;
+class Servomotor {
     
     public:
-        Servomotor();
+        Servomotor(int pin);
         ~Servomotor();
         
-        void setAngle();
+        void setAngle(int angle);
+
+    private:
+        std::string script;
+
+        int pin;
+        int lastAngle;
+        int currAngle;
 };
 
 #endif
