@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <utility>
 
 int main(int argc, char* argv[]){
 
@@ -16,15 +17,13 @@ int main(int argc, char* argv[]){
 
 	std::shared_ptr<Servomotor> smX = std::make_shared<Servomotor>(SERVO_X);
 	std::shared_ptr<Servomotor> smY = std::make_shared<Servomotor>(SERVO_Y);
-	smX->setAngle(45);
-	smY->setAngle(90);
+	std::shared_ptr<Dht22> dht = std::make_shared<Dht22>(DHT);
+	//std::shared_ptr<Database> db = std::make_shared<Database>();
 
-	smX->setAngle(0);
-	smY->setAngle(20);
-
-	smX->setAngle(35);
-	smY->setAngle(70);
-
+	std::pair<float, float> data;
+	data = dht->getTempHum();
+	std::cout << "Temp=" << data.first << "\nHum=" << data.second << std::endl;
+	
 	// now need to make an algorithm to stabilize the photocell in the optimall position
 	return 0;
 }

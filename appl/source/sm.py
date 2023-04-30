@@ -1,7 +1,7 @@
 import argparse
 
 # Define the command-line arguments
-parser = argparse.ArgumentParser(description='Set a value for a given axis and pin')
+parser = argparse.ArgumentParser(description='Set a value for a given pin')
 parser.add_argument('pin', help='The pin of the servomotor in BCM mode')
 parser.add_argument('value', help='The value to set')
 

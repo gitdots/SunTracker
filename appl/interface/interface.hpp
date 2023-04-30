@@ -5,6 +5,7 @@
 
 #include "Mcp3008.hpp"
 #include "Servomotor.hpp"
-
+#include "Database.hpp"
+#include "Dht22.hpp"
 
 #endif
