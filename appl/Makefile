@@ -52,7 +52,7 @@
 
 # Compiler options
 CXX = g++
-CXXFLAGS = -std=c++11 -std=c++2a  -Wall -Wextra -pedantic -Iinterface
+CXXFLAGS = -std=c++11 -std=c++2a -pthread -Wall -Wextra -pedantic -Iinterface
 
 # External libraries
 LDFLAGS = -lsqlite3

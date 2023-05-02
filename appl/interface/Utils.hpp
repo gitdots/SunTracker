@@ -12,16 +12,21 @@
  * SPI0_SCLK - GPIO11
  * SPI0_CS0  - GPIO8 
 */
+#define MCP_SPI_MODE 0
+#define MCP_SPI_BPW 8
+#define MCP_SPI_SPEED 10000
+#define MCP_SPI_CSLOW 0
+#define MCP_NO_CH 8
 
 /*  1. Servomotors  */
-#define SERVO_X 3
-#define SERVO_Y 27
+#define SERVO_0X 19
+#define SERVO_0Y 3
 
 /*  2. LDRs */
-#define LDR_UL 12
-#define LDR_UR 16
-#define LDR_DL 20
-#define LDR_DR 21
+#define LDR_UL_CH 0
+#define LDR_UR_CH 1
+#define LDR_DL_CH 2
+#define LDR_DR_CH 3
 
 /*  3. DHT22    */
 #define DHT 18

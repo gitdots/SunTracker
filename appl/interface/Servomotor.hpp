@@ -2,6 +2,7 @@
 #define SERVOMOTOR_HPP
 
 #include <string>
+#include <memory>
 
 class Servomotor {
     
@@ -18,5 +19,7 @@ class Servomotor {
         int lastAngle;
         int currAngle;
 };
+
+typedef std::shared_ptr<Servomotor> ServomotorPtr;
 
 #endif

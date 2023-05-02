@@ -7,5 +7,6 @@
 #include "Servomotor.hpp"
 #include "Database.hpp"
 #include "Dht22.hpp"
+#include "LightServoBrain.hpp"
 
 #endif

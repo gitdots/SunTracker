@@ -1,12 +1,12 @@
+#include "Mcp3008.hpp"
+
 #include <iostream>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/spi/spidev.h>
-
-#include "Mcp3008.hpp"
-#include "Utils.hpp"
+#include <cstring>
 
 using namespace std;
 
@@ -14,16 +14,18 @@ Mcp3008::Mcp3008(unsigned char mode, unsigned char bits_per_word, unsigned int s
         spi_mode(mode), spi_bits_per_word(bits_per_word), spi_speed(speed), cs_low_after_transfer(cs_low)
 {   
     spi_cs_fd = &spi_cs0_fd;
+    noChannels = MCP_NO_CH;
+    vRef = 3.3;
+    openSpi();
 }
 
-Mcp3008::~Mcp3008() {}
-
-void Mcp3008::setChannels(list<int> chs) {
-    channels.splice(channels.end(), chs);
+Mcp3008::~Mcp3008() {
+    closeSpi();
 }
 
-list<int> Mcp3008::getChannels() {
-    return channels;
+vector<int> Mcp3008::getReading() {
+    getReadingVoltageOnChannels();
+    return data;
 }
 
 int Mcp3008::getReadingVoltageOnChannel(int ch) { 
@@ -32,28 +34,17 @@ int Mcp3008::getReadingVoltageOnChannel(int ch) {
     tx[1] = (0x80 | (ch << 4));
     int err = spiWriteAndRead(tx, rx);
     int voltage = ((rx[1] & 0x03) << 8) | rx[2];
-    cout <<ch<<endl;
     return voltage;
 }
 
-list<int> Mcp3008::getReadingVoltageOnChannels() { 
-    list<int> voltages;
-
-    return voltages;
-}
-
-float Mcp3008::getReadingValueOnChannel(int ch) {
-    return getReadingVoltageOnChannel(ch) * 3.3 / 1023.0; 
-}
-
-list<float> Mcp3008::getReadingValueOnChannels() {
-    list<float> values;
-    for (auto ch: channels) {
-        float value = getReadingValueOnChannel(ch);
-        values.push_back(value);
+void Mcp3008::getReadingVoltageOnChannels() {
+    cout << endl;
+    data.clear();
+    for(int ch = 0; ch < noChannels; ch++) {
+        data.insert(data.begin() + ch, getReadingVoltageOnChannel(ch));
+        cout << data[ch] << " ";
     }
-
-    return values;
+    cout << endl;
 }
 
 int Mcp3008::openSpi() {
@@ -113,14 +104,17 @@ int Mcp3008::closeSpi() {
     	perror("Error - Could not close SPI device");
     	exit(1);
     }
+
     cout << "Spi port closed" << endl; 
     return(status);
 }
 
 int Mcp3008::spiWriteAndRead(unsigned char *TxData, unsigned char *RxData) {
-    int val = -1;
 
-	struct spi_ioc_transfer spi = {
+    int val = -1;
+    struct spi_ioc_transfer spi;
+    memset(&spi, 0, sizeof(spi));
+	spi = {
         .tx_buf = (unsigned long)TxData,		//transmit from "data"
         .rx_buf = (unsigned long)RxData,		//receive into "data"
         .len = 3,   //3 bytes

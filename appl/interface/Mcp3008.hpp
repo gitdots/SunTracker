@@ -1,26 +1,20 @@
 #ifndef MCP3008_HPP
-#define MCP3008_hpp
+#define MCP3008_HPP
 
-#include <list>
+#include <Utils.hpp>
+
+#include <vector>
+#include <memory>
+#include <thread>
+#include <mutex>
 
 class Mcp3008 {
     
     public:
-
         Mcp3008(unsigned char mode, unsigned char bits_per_word, unsigned int speed, unsigned char cs_low);
         ~Mcp3008();
-
-        void setChannels(std::list<int> chs);
-        std::list<int> getChannels();
         
-        int getReadingVoltageOnChannel(int ch);
-        std::list<int> getReadingVoltageOnChannels();
-        float getReadingValueOnChannel(int ch);
-        std::list<float> getReadingValueOnChannels();
-
-        int openSpi();
-        int closeSpi();
-        int spiWriteAndRead(unsigned char* TxData, unsigned char* RxData);
+        std::vector<int> getReading();
 
     private:
         int *spi_cs_fd;
@@ -31,9 +25,19 @@ class Mcp3008 {
         unsigned int spi_speed;
         unsigned char cs_low_after_transfer;
 
+        int noChannels;
+        float vRef;
+        std::vector<int> data;
 
-        std::list<int> channels;
-};  
+        int getReadingVoltageOnChannel(int ch);
+        void getReadingVoltageOnChannels();
 
+        int spiWriteAndRead(unsigned char* TxData, unsigned char* RxData);
+        int openSpi();
+        int closeSpi();
+        
+};
+
+typedef std::shared_ptr<Mcp3008> Mcp3008Ptr;
 
 #endif
