@@ -30,5 +30,5 @@ def initialize_app(app):
 @click.command('init-db')
 def initialize_database_command():
     #   clear the existing data and create new tables
-    initialize_database()
+    initialize_database()       
     click.echo('Database instatiated')

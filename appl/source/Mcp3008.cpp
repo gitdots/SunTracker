@@ -1,4 +1,5 @@
 #include "Mcp3008.hpp"
+#include "Utils.hpp"
 
 #include <iostream>
 #include <sys/ioctl.h>
@@ -15,12 +16,24 @@ Mcp3008::Mcp3008(unsigned char mode, unsigned char bits_per_word, unsigned int s
 {   
     spi_cs_fd = &spi_cs0_fd;
     noChannels = MCP_NO_CH;
-    vRef = 3.3;
+    vRef = MCP_VREF;
     openSpi();
 }
 
 Mcp3008::~Mcp3008() {
     closeSpi();
+}
+
+map<string, string> Mcp3008::uploadData() {
+    unique_lock<mutex> lock(m);
+    // cout << "[Mcp3008] Upload data" << endl;
+    
+    map<string, string> cmd;
+    cmd.insert(pair<string, string>("lul", to_string(data[LDR_UL_CH])));
+    cmd.insert(pair<string, string>("lur", to_string(data[LDR_UR_CH])));
+    cmd.insert(pair<string, string>("ldl", to_string(data[LDR_DL_CH])));
+    cmd.insert(pair<string, string>("ldr", to_string(data[LDR_DR_CH])));
+    return cmd;
 }
 
 vector<int> Mcp3008::getReading() {
@@ -32,19 +45,17 @@ int Mcp3008::getReadingVoltageOnChannel(int ch) {
     unsigned char rx[3];
     unsigned char tx[3] = {0x01, 0x80, 0x00};
     tx[1] = (0x80 | (ch << 4));
-    int err = spiWriteAndRead(tx, rx);
+    spiWriteAndRead(tx, rx);
     int voltage = ((rx[1] & 0x03) << 8) | rx[2];
     return voltage;
 }
 
 void Mcp3008::getReadingVoltageOnChannels() {
-    cout << endl;
+    unique_lock<mutex> lock(m);
     data.clear();
     for(int ch = 0; ch < noChannels; ch++) {
         data.insert(data.begin() + ch, getReadingVoltageOnChannel(ch));
-        cout << data[ch] << " ";
     }
-    cout << endl;
 }
 
 int Mcp3008::openSpi() {

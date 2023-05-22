@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- <h1 id="num">0</h1> -->
+    <!-- <canvas id="polarChart"></canvas> -->
+
+    
+    <div id="container">
+        <canvas id="polarChart"></canvas>
+        <canvas id="crossChart"></canvas>
+    </div>
+
+    <div id="cross">
+        <div id="horizontalLine"></div>
+        <div id="verticalLine"></div>
+        <div id="pinH" class="pin"></div>
+        <div id="pinV" class="pin"></div>
+    </div>
+
+    <script>
+        var x = 0;
+        var newData;
+        var servoData = [[0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45],];
+        $(document).ready(function() {
+            initialize();
+            setInterval(function() {
+                $.getJSON('/get_data', function(data) {
+                    newData = data['data'];
+                    // $('#num').text(newData + "#" + x++);
+                    var ldrs = [newData['lul'], newData['lur'], newData['ldl'], newData['ldr']];
+                    updatePolarAreaChart(ldrs);
+                    // var servos = [newData['servox'], newData['servoy']];
+                    console.log("Adjusting for: " + servoData[x]);
+                    adjustPins(servoData[x++]);
+                    
+                });
+            }, 1000);
+        });
+        
+    </script>
+    
+</body>
+</html>

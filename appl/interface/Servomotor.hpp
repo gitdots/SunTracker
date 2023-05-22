@@ -3,21 +3,39 @@
 
 #include <string>
 #include <memory>
+#include <map>
+#include <mutex>
 
-class Servomotor {
+#include "SocketCommunicator.hpp"
+#include "Observer.hpp"
+
+enum ServomotorMode {
+    MODE_AUTOMATIC = 0,
+    MODE_MANUAL = 1
+};
+
+class Servomotor : public Observer {
     
     public:
-        Servomotor(int pin);
+        Servomotor(int _pinx, int _piny, std::shared_ptr<SocketCommunicator> _comm);
         ~Servomotor();
         
-        void setAngle(int angle);
+        void setAngle(int pinx, int anglex, int piny, int angley);
+        void setMode(ServomotorMode mode);
+        ServomotorMode getMode();
+        std::map<std::string, std::string> uploadData();
 
     private:
-        std::string script;
+        std::shared_ptr<SocketCommunicator> comm;
+        std::mutex tm;
 
-        int pin;
-        int lastAngle;
-        int currAngle;
+        int pinx;
+        int piny;
+        int lastAngley;
+        int currAngley;
+        int lastAnglex;
+        int currAnglex;
+        ServomotorMode runningMode;
 };
 
 typedef std::shared_ptr<Servomotor> ServomotorPtr;

@@ -1,12 +1,13 @@
-#ifndef INTERFACE_HPP
-#define INTERFACE_HPP
+#pragma once
 
 #include "Utils.hpp"
 
+#include "Observer.hpp"
 #include "Mcp3008.hpp"
 #include "Servomotor.hpp"
-#include "Database.hpp"
 #include "Dht22.hpp"
-#include "LightServoBrain.hpp"
+#include "TurretController.hpp"
+#include "SocketCommunicator.hpp"
+#include "SolarCell.hpp"
+#include "LiveDataFeeder.hpp"
 
-#endif

@@ -1,0 +1,65 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+#container {
+    display: flex;
+    justify-content: space-between;
+}
+
+canvas {
+    margin: auto;
+}
+
+#left-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#polarChart {
+    width: 400px;
+    height: 400px;
+}
+
+#crossContainer {
+    position: relative;
+    width: 400px;
+    height: 400px;
+}
+
+#crossChart {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#horizontalLine, #verticalLine {
+    position: absolute;
+    background-color: black;
+}
+
+#horizontalLine {
+    top: 50%;
+    width: 100%;
+    height: 2px;
+}
+
+#verticalLine {
+    left: 50%;
+    height: 100%;
+    width: 2px;
+}
+
+.pin {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: red;
+}

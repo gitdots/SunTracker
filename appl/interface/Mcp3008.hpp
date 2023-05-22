@@ -1,22 +1,26 @@
 #ifndef MCP3008_HPP
 #define MCP3008_HPP
 
-#include <Utils.hpp>
+#include "Observer.hpp"
+#include "Utils.hpp"
 
 #include <vector>
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <string>
 
-class Mcp3008 {
+class Mcp3008 : public Observer {
     
     public:
         Mcp3008(unsigned char mode, unsigned char bits_per_word, unsigned int speed, unsigned char cs_low);
         ~Mcp3008();
         
         std::vector<int> getReading();
+        std::map<std::string, std::string> uploadData();
 
     private:
+        std::mutex m;
         int *spi_cs_fd;
         int spi_cs0_fd;
         int spi_device;
