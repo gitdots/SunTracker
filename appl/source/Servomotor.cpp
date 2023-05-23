@@ -23,7 +23,7 @@ Servomotor::~Servomotor() {
 }
 
 void Servomotor::setAngle(int pinx, int anglex, int piny, int angley) {
-    
+    unique_lock<mutex> lock_(tm);
     if(anglex != 0 && angley != 0) {
         string reqMessage = to_string(anglex) + ";" + to_string(angley);
         comm->requestServoMove(reqMessage);
@@ -41,7 +41,7 @@ ServomotorMode Servomotor::getMode() {
 map<string, string> Servomotor::uploadData() {
     map<string, string> cmd;
     unique_lock<mutex> lock_(tm);
-    cmd.insert({});
-    cmd.insert({});
+    cmd.insert({"anglex", to_string(lastAnglex)});
+    cmd.insert({"angley", to_string(lastAngley)});
     return cmd;
 }

@@ -4,44 +4,63 @@
     <title>Flask App</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='app.js') }}" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='app.js')}}" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://kit.fontawesome.com/dcdea7f555.js" crossorigin="anonymous"></script>
+
 </head>
 <body>
-    <!-- <h1 id="num">0</h1> -->
-    <!-- <canvas id="polarChart"></canvas> -->
 
+    <div class="container">
+        <div class="chart-container">
+            <canvas id="polarChart" width="300em" height="300em"></canvas>
+            <canvas id="voltageChart" width="300em" height="300em" aria-label="voltLabel" role="img"></canvas>
+        </div>
+        <div class="middle-content">
+            <button class="statistics-button">See statistics</button>
+            <div class="bottom-container">
+                <div class="th_data">
+                    <div id="temp">
+                        <span id="temperature">20°C</span>
+                        <img id="th_img" src="{{url_for('static', filename='images/thermo.svg')}}" alt="Temperature SVG"/>
+                    </div>
+                    <div id="hum">
+                        <img id="th_img" src="{{url_for('static', filename='images/humid.svg')}}" alt="Humidity SVG"/>
+                        <span id="humidity">70%</span>
+                    </div>
+                </div>
+            </div>
+            <canvas id="amperageChart" width="300em" height="300em" aria-label="ampLabel" role="img"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="cartesianChart" width="300em" height="300em"></canvas>
+            <canvas id="wattageChart" width="300em" height="300em" aria-label="wattLabel" role="img"></canvas>
+        </div>
+    </div>
     
-    <div id="container">
-        <canvas id="polarChart"></canvas>
-        <canvas id="crossChart"></canvas>
-    </div>
-
-    <div id="cross">
-        <div id="horizontalLine"></div>
-        <div id="verticalLine"></div>
-        <div id="pinH" class="pin"></div>
-        <div id="pinV" class="pin"></div>
-    </div>
 
     <script>
         var x = 0;
         var newData;
-        var servoData = [[0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45], [45, -45], [80,10], [45, -45], [80,10], [0,45], [45, -45], [80,10], [0,45],];
+        var servoData = [[0,45], [0,45], [90, 0], [90, 0], [0,45], [0,45], [90, 0], [90, 0], [0,45], [0,45], [90, 0], [90, 0], [1,2], [4,65]]
+
         $(document).ready(function() {
             initialize();
             setInterval(function() {
                 $.getJSON('/get_data', function(data) {
                     newData = data['data'];
-                    // $('#num').text(newData + "#" + x++);
                     var ldrs = [newData['lul'], newData['lur'], newData['ldl'], newData['ldr']];
                     updatePolarAreaChart(ldrs);
-                    // var servos = [newData['servox'], newData['servoy']];
-                    console.log("Adjusting for: " + servoData[x]);
-                    adjustPins(servoData[x++]);
                     
+                    updateCartesianChart(45, 45);
+                    updateCurrentCharts(1,0.1,0.3);
+                    x++;
                 });
             }, 1000);
+        });
+
+        document.getElementById('statistics-button').addEventListener('click', function() {
+            window.location.href = "{{url_for('statistics')}}";
         });
         
     </script>
