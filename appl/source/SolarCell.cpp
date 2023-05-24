@@ -5,7 +5,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <thread>
 #include <chrono>
 #include <cstring>
 
@@ -20,10 +19,10 @@ using namespace std;
 SolarCell::SolarCell() {
     deviceFd = open("/dev/i2c-1", O_RDWR);
     if(deviceFd < 0) {
-        cout << "[SolarCell] Failed to open I2C." << endl; 
+        cerr << "[SolarCell] Failed to open I2C." << endl; 
     } 
     if(ioctl(deviceFd, I2C_SLAVE, INA219_ADDRESS) < 0) {
-        cout << "[SolarCell] Failed to initialized I2C with address provided." << endl;
+        cerr << "[SolarCell] Failed to initialized I2C with address provided." << endl;
     }
 
     uint16_t config = INA219_CONFIG_BVOLTAGERANGE_16V |
@@ -32,7 +31,7 @@ SolarCell::SolarCell() {
                       INA219_CONFIG_SADCRES_12BIT_1S_532US |
                       INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
     if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, config) < 0) {
-        perror("Failed to write configuration to INA219");
+        cerr << "[SolarCell] Failed to write configuration to INA219" << endl;
     }
 }
 
@@ -46,7 +45,6 @@ SolarCell::~SolarCell() {
 }
 
 map<string, string> SolarCell::uploadData() {
-    // cout << "[SolarCell] Upload data" << endl;
     unique_lock<mutex> lock(m);
     map<string, string> cmd;
     cmd.insert({"shuntVoltage_mV",to_string(last_shuntVoltage_mV)});
@@ -68,8 +66,7 @@ void SolarCell::start() {
 }
 
 void SolarCell::readData() {
-    int size = sizeof(float);
-    char buff[size];
+    char buff[sizeof(float)];
     while(running) {
         float shuntVoltageSum_mV = 0;
         float busVoltageSum_V = 0;
@@ -79,13 +76,13 @@ void SolarCell::readData() {
         for (int i = 0; i < 5; ++i) {
             int16_t raw_shuntVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_SHUNTVOLTAGE);
             uint16_t shuntVoltage = __bswap_16(raw_shuntVoltage);
-            float shuntVoltage_mV = shuntVoltage * 0.01; // Convert to mV
+            float shuntVoltage_mV = shuntVoltage * 0.01;
 
             int16_t raw_busVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_BUSVOLTAGE);
             uint16_t busVoltage = __bswap_16(raw_busVoltage) >> 3;
-            float busVoltage_V = busVoltage * 0.004; // Convert to V
+            float busVoltage_V = busVoltage * 0.004;
 
-            float current_mA = shuntVoltage_mV / 0.1;  // LSB is 0.01 A/bit or 10 mA/bit
+            float current_mA = shuntVoltage_mV / 0.1;  
             float power_mW = busVoltage_V * current_mA;
 
             shuntVoltageSum_mV += shuntVoltage_mV;
@@ -100,11 +97,6 @@ void SolarCell::readData() {
         last_busVoltage_V = busVoltageSum_V / 5;
         last_current_mA = currentSum_mA / 5;
         last_power_mW = powerSum_mW / 5;
-
-        // printf("Shunt Voltage: %.2f mV\n", last_shuntVoltage_mV);
-        // printf("Bus Voltage: %.2f V\n", last_busVoltage_V);
-        // printf("Current: %.2f mA\n", last_current_mA);
-        // printf("Power: %.2f mW\n\n", last_power_mW);
 
         this_thread::sleep_for(chrono::seconds(1));
     }

@@ -17,16 +17,16 @@
             <canvas id="voltageChart" width="300em" height="300em" aria-label="voltLabel" role="img"></canvas>
         </div>
         <div class="middle-content">
-            <button class="statistics-button">See statistics</button>
+            <button class="statistics-button" id="stat-button">See statistics</button>
             <div class="bottom-container">
                 <div class="th_data">
                     <div id="temp">
-                        <span id="temperature">20°C</span>
+                        <span id="temperature">0°C</span>
                         <img id="th_img" src="{{url_for('static', filename='images/thermo.svg')}}" alt="Temperature SVG"/>
                     </div>
                     <div id="hum">
                         <img id="th_img" src="{{url_for('static', filename='images/humid.svg')}}" alt="Humidity SVG"/>
-                        <span id="humidity">70%</span>
+                        <span id="humidity">0%</span>
                     </div>
                 </div>
             </div>
@@ -38,28 +38,24 @@
         </div>
     </div>
     
-
     <script>
-        var x = 0;
         var newData;
-        var servoData = [[0,45], [0,45], [90, 0], [90, 0], [0,45], [0,45], [90, 0], [90, 0], [0,45], [0,45], [90, 0], [90, 0], [1,2], [4,65]]
-
         $(document).ready(function() {
             initialize();
             setInterval(function() {
                 $.getJSON('/get_data', function(data) {
-                    newData = data['data'];
-                    var ldrs = [newData['lul'], newData['lur'], newData['ldl'], newData['ldr']];
+                    newData = JSON.parse(data['data']);
+                    var ldrs = [newData.lul, newData.lur, newData.ldl, newData.ldr];
                     updatePolarAreaChart(ldrs);
+                    updateTempHum(newData.temp, newData.hum);
+                    updateCartesianChart(newData.anglex, newData.angley);
+                    updateCurrentCharts(newData.busVoltage_V, newData.current_mA, newData.power_mW);
                     
-                    updateCartesianChart(45, 45);
-                    updateCurrentCharts(1,0.1,0.3);
-                    x++;
                 });
             }, 1000);
         });
 
-        document.getElementById('statistics-button').addEventListener('click', function() {
+        document.getElementById('stat-button').addEventListener('click', function() {
             window.location.href = "{{url_for('statistics')}}";
         });
         

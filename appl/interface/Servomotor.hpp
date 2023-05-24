@@ -1,13 +1,13 @@
 #ifndef SERVOMOTOR_HPP
 #define SERVOMOTOR_HPP
 
+#include "SocketCommunicator.hpp"
+#include "Observer.hpp"
+
 #include <string>
 #include <memory>
 #include <map>
 #include <mutex>
-
-#include "SocketCommunicator.hpp"
-#include "Observer.hpp"
 
 enum ServomotorMode {
     MODE_AUTOMATIC = 0,

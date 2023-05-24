@@ -34,7 +34,6 @@ body {
     align-items: center;
     padding: 2em;
     flex-direction: column;
-
 }
 
 canvas {
@@ -49,7 +48,6 @@ canvas {
     margin: 5px;
     flex-direction: row;
     justify-content:space-between;
-
 }
 
 #temperature, #humidity {

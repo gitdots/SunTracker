@@ -8,7 +8,6 @@
 #include <thread>
 #include <vector>
 #include <memory>
-#include <utility>
 
 class SolarCell : public Observer {
 

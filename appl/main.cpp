@@ -2,37 +2,9 @@
 #include "Utils.hpp"
 
 #include <memory>
-#include <list>
-#include <vector>
-#include <iostream>
-
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <cstring>
-#include <utility>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <vector>
+
 using namespace std;
-
-#define INA219_ADDRESS 0x40
-
-string dataMapToJson(pair<string, int> pr) {
-    string json = "{";
-    bool first = true;
-
-	if (!first) {
-		json += ",";
-	}
-	first = false;
-	json += "\"" + pr.first + "\":" + to_string(pr.second);
-    
-    json += "}";
-    return json;
-}
 
 int main() {
 
@@ -58,20 +30,9 @@ int main() {
 
 	liveFeed->start();
 
-	while(1){usleep(5000);}
-
-	// unsigned int i = 0;
-	// int n;
-	// char buf[20];
-	// vector<string> s = {"12", "23", "34", "45", "56", "67", "78", "89", "12", "23", "34", "45", "56", "67", "78", "89", "12", "23", "34", "45", "56", "67", "78", "89"};
-	// while(1){
-	// 	send(client, s[i].c_str(), 2, 0);
-	// 	cout << "sent: " << s[i++] << endl;
-	// 	sleep(1);
-	// 	if(i >= s.size()) break;
-	// }
-
-    // close(socketFd);
+	while(1) {
+		usleep(5000);
+	}
 
     return 0;	
 }

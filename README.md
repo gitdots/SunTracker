@@ -5,10 +5,10 @@ Diploma project
 
 1. Components
    - 2 axis tower that accomplishes the following:
-     - [ ] supports the solar panel
-     - [ ] supports light sensors
-     - [ ] supports rotation horizontally
-     - [ ] supports rotation vertically
+     - [x] supports the solar panel
+     - [x] supports light sensors
+     - [x] supports rotation horizontally
+     - [x] supports rotation vertically
    - [x] temperature sensors
    - [x] humidity sensors
    - [ ] (optional) athmospheric pressure sensor
@@ -19,19 +19,19 @@ Diploma project
    - [x] outlet power source 
 
 2. What to do
-   - [ ] Wifi connection to a web server for transmit or receive information
-   - [ ] create a backend web server with database (django and !?)
+   - [x] Wifi connection to a web server for transmit or receive information
+   - [x] create a backend web server with database (django and !?)
    - [ ] (optional) statistics
    - [ ] (optional) adjust parameters based on location and season
-   - [ ] 3D print the turret - have a good design
-     - [ ] incorporates the rotating mechanism
-     - [ ] easily attachable sonar panel and sensors
-     - [ ] can be opened to check insides
-     - [ ] robust
-   - [ ] graphic LCD screen to display system status
-     - [ ] temperature
-     - [ ] humidity
-     - [ ] Wi-Fi connection
+   - [x] 3D print the turret - have a good design
+     - [x] incorporates the rotating mechanism
+     - [x] easily attachable sonar panel and sensors
+     - [x] can be opened to check insides
+     - [x] robust
+   - [x] graphic LCD screen to display system status
+     - [x] temperature
+     - [x] humidity
+     - [x] Wi-Fi connection
      - [ ] (optional) atmospheric pressure
      - [ ] (optional) wind speed
    - figure out how to move the solar panel ( choose from below )

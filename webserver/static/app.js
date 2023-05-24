@@ -16,6 +16,8 @@ var currentAmpChart;
 var currentVoltChart;
 var currentWattChart;
 
+var ctxTemp, ctxHum;
+
 function initialize() {
     ctx = document.getElementById('polarChart').getContext('2d');
     ctxData = [0, 0, 0, 0];
@@ -141,6 +143,9 @@ function initialize() {
             }
         }
     });
+
+    ctxTemp = document.getElementById('temperature');
+    ctxHum = document.getElementById('humidity');
 }
 
 
@@ -174,4 +179,9 @@ function updateCurrentCharts(voltage, mAmps, mWatts) {
     updateCurrentChart(currentVoltChart, voltage);
     updateCurrentChart(currentAmpChart, mAmps);
     updateCurrentChart(currentWattChart, mWatts);
+}
+
+function updateTempHum(temp, hum) {
+    ctxTemp.textContent = temp.toString() + "°C";
+    ctxHum.textContent = hum.toString() + "%";
 }
