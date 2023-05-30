@@ -74,13 +74,17 @@ pair<float, float> SocketCommunicator::requestTempHum() {
     bool first = true;
     stringstream ss(reqData);
     while(getline(ss, token, ';')) {
+        cout << "Converting: " << token << endl;
         try {
             float value = stof(token);
             if(first) {
                 first = false;
                 data.first = value;
             }
-            else data.second = value;
+            else {
+                data.second = value;
+                break;
+            }
         }
         catch(const std::invalid_argument& e) {
             cerr << "[SocketCommunicator] Invalid argument error: " << e.what() << token << endl;
@@ -89,8 +93,8 @@ pair<float, float> SocketCommunicator::requestTempHum() {
             cerr << "[SocketCommunicator] Out of range error: " << e.what() << token << endl;
         }
     }
+    cout << "[SocketCommunicator] temp: " << data.first << "; hum: " << data.second << endl;
     return data;
-
 }
 
 void SocketCommunicator::requestServoMove(string requestCode) {

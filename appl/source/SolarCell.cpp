@@ -30,7 +30,7 @@ SolarCell::SolarCell() {
                       INA219_CONFIG_BADCRES_12BIT |
                       INA219_CONFIG_SADCRES_12BIT_1S_532US |
                       INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, config) < 0) {
+    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, 13424) < 0) {
         cerr << "[SolarCell] Failed to write configuration to INA219" << endl;
     }
 }
@@ -89,14 +89,23 @@ void SolarCell::readData() {
             busVoltageSum_V += busVoltage_V;
             currentSum_mA += current_mA;
             powerSum_mW += power_mW;
-
-            this_thread::sleep_for(chrono::milliseconds(200));
+            
+            this_thread::sleep_for(chrono::milliseconds(150));
         }
-
+        
         last_shuntVoltage_mV = shuntVoltageSum_mV / 5;
         last_busVoltage_V = busVoltageSum_V / 5;
         last_current_mA = currentSum_mA / 5;
         last_power_mW = powerSum_mW / 5;
+
+        cout << "Shunt: "<< last_shuntVoltage_mV << " mV\n" << "Voltage: " <<  last_busVoltage_V << " V\n" << "I: " << last_current_mA << " mA\n" << "Power: " << last_power_mW << " mW\n" << endl;
+
+        if(last_busVoltage_V > 5) {        
+            last_shuntVoltage_mV = 0;
+            last_busVoltage_V = 0;
+            last_current_mA = 0;
+            last_power_mW = 0;
+        }
 
         this_thread::sleep_for(chrono::seconds(1));
     }

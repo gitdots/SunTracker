@@ -2,23 +2,24 @@ import os
 import socket
 import select
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import time
 
 from threading import Thread, Event
 import queue
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import json
 
-
-
 app = Flask(__name__)
 
-DB_PATH = os.path.join(app.instance_path, 'test.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+current_dir = os.path.dirname(os.path.abspath(__file__))
+DB_PATH_REL = os.path.join(current_dir, '..', 'database', 'db')
+DB_PATH_ABS = database_path = os.path.abspath(DB_PATH_REL)
+print(DB_PATH_ABS)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH_ABS}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 marsh = Marshmallow(app)
@@ -48,6 +49,9 @@ class Readings (db.Model):
     def __repr__(self):
         return f"time:{self.read_time},lul:{self.lul},lur:{self.lur},ldl:{self.ldl},ldr:{self.ldr},temp:{self.temp},hum:{self.hum},angle0X:{self.angle0X},angle0Y:{self.angle0Y}, mW:{self.mW}, mA:{self.mA},v:{self.v}"
 
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 class ReadingSchema(marsh.SQLAlchemyAutoSchema):
     class Meta:
         model = Readings
@@ -64,7 +68,6 @@ def get2_decimals(number):
         return number
     
 def read_new_data_thread():
-    print('Started reading data')
     while True:
         has_new_data, _, _ = select.select([client], [], [])
         for _socket in has_new_data:
@@ -75,9 +78,7 @@ def read_new_data_thread():
         time.sleep(1)
 
 def handle_new_data_thread():
-    print('Started handling data')
     global latest_data
-
     latest_commit_time = datetime.now()
     temp_reading = None
     keys = ['anglex', 'angley', 'busVoltage_V', 'current_mA', 'power_mW', 'shuntVoltage_mV', 'hum', 'temp', 'ldl', 'ldr', 'lul', 'lur']
@@ -94,9 +95,7 @@ def handle_new_data_thread():
             latest_data = data
             data_dict = json.loads(latest_data)
             data_available.clear()
-            # print('[handle_new_data_thread] Received data, averaging it...')
-            
-            # print(f'first_sample={first_sample}')
+
             if first_sample:
                 for key, value in data_dict.items():
                     data_fields_total[key] = get2_decimals(value)
@@ -143,30 +142,91 @@ def handle_new_data_thread():
         except:
             time.sleep(0.1)
 
+# FOR TESTING
+from faker import Faker
+import random
+@app.route('/mock_table')
+def mock_table():
+    fake = Faker()
+    start_ = datetime(2023, 5, 29)
+    end_ = datetime(2023, 5, 31)
+    for _ in range(50):
+        mock_reading = Readings(
+            read_time = fake.date_time_between(start_date=start_, end_date=end_),
+            lul = random.randint(0, 1024),
+            lur = random.randint(0, 1024),
+            ldl = random.randint(0, 1024),
+            ldr = random.randint(0, 1024),
+            temp = random.uniform(-10.0, 40.0),
+            hum = random.uniform(0.0, 100.0),
+            angle0X = random.randint(0, 180),
+            angle0Y = random.randint(0, 180),
+            mW = random.uniform(0.0, 1000.0),
+            mA = random.uniform(0.0, 1000.0),
+            v = random.uniform(0.0, 5.0)
+        )
+        db.session.add(mock_reading)
+        db.session.commit()
+
+    response = [reading.to_dict() for reading in Readings.query.order_by(Readings.read_time.desc()).all()]
+    return jsonify(response)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-import random
-@app.route('/')
-def home():
-    return render_template('index.html')
-
 @app.route('/get_data')
 def get_data():
-    # print(f'\nreceived: {latest_data}\n')
     return jsonify({'data': latest_data})
 
 @app.route('/statistics')
 def statistics():
     return render_template('stats.html')
 
+@app.route('/get_date_data')
+def get_date_data():
+    request_type = request.args.get('type', default=None, type=str)
+
+    if request_type == 'day':
+        specified_date = request.args.get('day', default=None, type=str)
+        print(f'required data from {specified_date}')
+        
+        required_data = Readings.query.filter(db.func.date(Readings.read_time) == specified_date).order_by(Readings.read_time.asc()).all()
+        print(required_data)
+        results = []
+        for item in required_data:
+            res = {
+                'id': item.id,
+                'timestamp': item.read_time.strftime('%H:%M'),
+                'power': item.mW,
+                'temp': item.temp,
+                'hum': item.hum
+            }
+            results.append(res)
+        print(f'{specified_date}:\n {results}')
+
+        return results
+
+    # elif request_type == 'period':
+    #     start_date = request.args.get('start', default=None, type=str)
+    #     end_date = request.args.get('end', default=None, type=str)
+    #     printf(f'required data from {start_date} until {end_date}')
+
+
+    # return jsonify(results)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    new_data_thread = Thread(target=read_new_data_thread)
-    handler_thread = Thread(target=handle_new_data_thread)
-    new_data_thread.start()
-    handler_thread.start()
-    app.run(host='192.168.16.105', port=5000)
+    
+    try:
+        new_data_thread = Thread(target=read_new_data_thread)
+        handler_thread = Thread(target=handle_new_data_thread)
+        new_data_thread.start()
+        handler_thread.start()
+    except KeyboardInterrupt as e:
+        print('Requested to shut down')
+        new_data_thread.join()
+        handle_new_data_thread.join()
+
+    app.run(host='192.168.16.105', port=5000, threaded=True)

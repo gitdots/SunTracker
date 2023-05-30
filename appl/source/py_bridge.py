@@ -27,11 +27,14 @@ class SensorReader:
             self.dhtDevice.exit()
             # print("[PY] Error reading sensor: ", e)
         if self.temperature is not None and self.humidity is not None and self.temperature != 0 and self.humidity != 0:
-            return "{:.2f};{:.2f}".format(self.temperature, self.humidity)
+            print(f"[TH] GOT {self.temperature}; {self.humidity}")
+            # return "{:.2f};{:.2f}".format(self.temperature, self.humidity)
+            return f"{self.temperature};{self.humidity}"
         else:
             self.temperature = None
             self.humidity = None
-            return "{999.0}{999.0}"
+            print(f"[TH] GOT ELSE {self.temperature}; {self.humidity}")
+            return "999.0;999.0"
         
 class Servomotor:
     def __init__(self, pin):
@@ -92,7 +95,7 @@ class SocketServer:
                 self.running = False
                 response = 'Closing connection'
             else:
-                response = 'Invalid request code'
+                # response = 'Invalid request code'
                 sleep(.2)
 
             conn.send(response.encode())

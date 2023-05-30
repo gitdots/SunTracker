@@ -24,11 +24,23 @@ function initialize() {
     polarAreaChart = new Chart(ctx, {
         type: 'polarArea',
         data: {
-            labels: ['Light Up Left', 'Light Up Right', 'Light Down Left', 'Light Down Right'],
+            labels: ['Light Up Right', 'Light Down Right', 'Light Down Left', 'Light Up Left'],
             datasets: [{
                 data: ctxData,
                 backgroundColor: Chart.defaults.colorScheme,
-            }]
+            }],
+            borderColor: Chart.defaults.colorScheme,
+            borderWidth: 1
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 1024
+                }
+            }
         }
     });
 
@@ -75,7 +87,7 @@ function initialize() {
         data: {
             labels: initialLabels,
             datasets: [{
-                label: 'mAmpers',
+                label: 'Current [mA]',
                 data: dataA,
                 fill: false,
                 backgroundColor: 'rgba(196, 34, 83, 0.8)',
@@ -86,9 +98,14 @@ function initialize() {
         },
         options: {
             scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 1.0
+                beginAtZero: true,
+                min: function() {
+                    var minValue = Math.min(dataA);
+                    return minValue - 0.1 * Math.abs(minValue);
+                },
+                max: function() {
+                    var maxValue = Math.max(dataA);
+                    return maxValue + 0.1 * Math.abs(maxValue);
                 }
             }
         }
@@ -100,7 +117,7 @@ function initialize() {
         data: {
             labels: initialLabels,
             datasets: [{
-                label: 'Voltage',
+                label: 'Voltage [V]',
                 data: dataV,
                 fill: false,
                 backgroundColor: 'rgba(65, 24, 170, 0.8)',
@@ -125,7 +142,7 @@ function initialize() {
         data: {
             labels: initialLabels,
             datasets: [{    
-                label: 'mWatts',
+                label: 'Power [mW]',
                 data: dataW,
                 fill: false,
                 backgroundColor: 'rgba(18, 102, 48, 0.8)',
@@ -135,10 +152,20 @@ function initialize() {
             }]
         },
         options: {
+            responsive: true,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 1.0
+                // y: {
+                //     beginAtZero: true,
+                //     max: 1000.0
+                // }
+                beginAtZero: true,
+                min: function() {
+                    var minValue = Math.min(dataW);
+                    return minValue - 0.1 * Math.abs(minValue);
+                },
+                max: function() {
+                    var maxValue = Math.max(dataW);
+                    return maxValue + 0.1 * Math.abs(maxValue);
                 }
             }
         }
@@ -150,7 +177,12 @@ function initialize() {
 
 
 function updatePolarAreaChart(newData) {
-    polarAreaChart.data.datasets[0].data = newData;
+    // ['Light Up Right', 'Light Down Right', 'Light Down Left', 'Light Up Left'],
+    let lul = newData[0];
+    let lur = newData[1];
+    let ldl = newData[2];
+    let ldr = newData[3];
+    polarAreaChart.data.datasets[0].data = [lur, ldl, ldr, lul];
     polarAreaChart.update();
 }
 
@@ -163,12 +195,10 @@ function updateCartesianChart(x, y) {
 }
 
 function updateCurrentChart(chart, value) {
-    console.log("Update for voltage: " + value);
     chart.data.labels.pop();
     chart.data.datasets[0].data.pop();
     chart.data.labels.unshift(0);
     chart.data.datasets[0].data.unshift(value);
-    console.log("volt: " + chart.data.datasets[0].data)
     for(let i = 1; i < chart.data.labels.length; i++) {
         chart.data.labels[i] = chart.data.labels[i] - 1;
     }
@@ -182,6 +212,6 @@ function updateCurrentCharts(voltage, mAmps, mWatts) {
 }
 
 function updateTempHum(temp, hum) {
-    ctxTemp.textContent = temp.toString() + "°C";
-    ctxHum.textContent = hum.toString() + "%";
+    ctxTemp.textContent = (parseFloat(temp.toFixed(2))).toString() + "°C";
+    ctxHum.textContent = (parseFloat(hum.toFixed(2))).toString() + "%";
 }
