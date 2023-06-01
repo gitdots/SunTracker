@@ -31,12 +31,13 @@ LiveDataFeeder::~LiveDataFeeder() { }
 
 void LiveDataFeeder::start() {
     cout << "Unix socket started. Ready to stream data." << endl;
-	cout << "Listening for connection." << endl;
     if (listen(socketFd, 1) == -1) {
 		std::cerr << "Listen error\n";
 	}
-	flaskClient = accept(socketFd, NULL, NULL);
-	cout << "Flask connected. Start sending live data." << endl;
+    cout << "Listening for connection." << endl;
+
+    flaskClient = accept(socketFd, NULL, NULL);
+	cout << "Flask connected." << endl;
 
     streamingLiveData = true;
     streamingThread = thread(&LiveDataFeeder::streamLiveDataThread, this);
@@ -59,7 +60,6 @@ void LiveDataFeeder::streamLiveDataThread() {
             auto streamerLiveData = streamer->uploadData();
             liveData.insert(streamerLiveData.begin(), streamerLiveData.end());
         }
-        cout << "Got new data " << endl;
         sendLiveData(liveData);
         this_thread::sleep_for(chrono::seconds(1));
     }
@@ -85,7 +85,6 @@ void LiveDataFeeder::sendLiveData(map<string, string> liveData) {
     cout << "\n#################\n" << serializedData << "\n#################\n";
     int bytesSent = send(flaskClient, serializedData.c_str(), serializedData.size(), 0);
     if(bytesSent == -1) {
-        cout << "Failed to send data" << endl;
+        cerr << "Failed to send data" << endl;
     }
-    
 }

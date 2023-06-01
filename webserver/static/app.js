@@ -177,7 +177,6 @@ function initialize() {
 
 
 function updatePolarAreaChart(newData) {
-    // ['Light Up Right', 'Light Down Right', 'Light Down Left', 'Light Up Left'],
     let lul = newData[0];
     let lur = newData[1];
     let ldl = newData[2];

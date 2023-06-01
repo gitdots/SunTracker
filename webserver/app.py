@@ -57,9 +57,6 @@ class ReadingSchema(marsh.SQLAlchemyAutoSchema):
         model = Readings
         load_instance = True
 
-# reading_schema = ReadingSchema()
-# readings_schema = ReadingSchema(many=True)
-
 def get2_decimals(number):
     if isinstance(number, float):
         dec2_number = round(number, 2)
@@ -70,11 +67,10 @@ def get2_decimals(number):
 def read_new_data_thread():
     while True:
         has_new_data, _, _ = select.select([client], [], [])
-        for _socket in has_new_data:
-            new_data = client.recv(1024).decode()
-            new_data_queue.put(new_data)
-            data_available.set()
-            # print(f'[read_new_data_thread] Received {new_data}')
+        new_data = client.recv(1024).decode()
+        new_data_queue.put(new_data)
+        data_available.set()
+        # print(f'[read_new_data_thread] Received {new_data}')
         time.sleep(1)
 
 def handle_new_data_thread():
@@ -207,26 +203,20 @@ def get_date_data():
 
         return results
 
-    # elif request_type == 'period':
-    #     start_date = request.args.get('start', default=None, type=str)
-    #     end_date = request.args.get('end', default=None, type=str)
-    #     printf(f'required data from {start_date} until {end_date}')
-
-
-    # return jsonify(results)
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     
-    try:
-        new_data_thread = Thread(target=read_new_data_thread)
-        handler_thread = Thread(target=handle_new_data_thread)
-        new_data_thread.start()
-        handler_thread.start()
-    except KeyboardInterrupt as e:
-        print('Requested to shut down')
-        new_data_thread.join()
-        handle_new_data_thread.join()
+    # try:
+    new_data_thread = Thread(target=read_new_data_thread)
+    handler_thread = Thread(target=handle_new_data_thread)
+    new_data_thread.start()
+    handler_thread.start()
+    # except KeyboardInterrupt as e:
+    #     print('Requested to shut down')
+    #     new_data_thread.stop().join()
+    #     handle_new_data_thread.stop().join()
+    
 
-    app.run(host='192.168.16.105', port=5000, threaded=True)
+    app.run(host='192.168.100.21', port=5000, threaded=True)

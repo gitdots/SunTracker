@@ -11,9 +11,9 @@ int main() {
 	shared_ptr<SocketCommunicator> comm = make_shared<SocketCommunicator>();
 	comm->startPythonBridge();
 
-	Mcp3008Ptr mcp = make_shared<Mcp3008>(MCP_SPI_MODE, MCP_SPI_BPW, MCP_SPI_SPEED, MCP_SPI_CSLOW);
-	ServomotorPtr servos = make_shared<Servomotor>(SERVO_0X, SERVO_0Y, comm);
 	Dht22Ptr dht = std::make_shared<Dht22>(comm);
+	ServomotorPtr servos = make_shared<Servomotor>(SERVO_0X, SERVO_0Y, comm);
+	Mcp3008Ptr mcp = make_shared<Mcp3008>(MCP_SPI_MODE, MCP_SPI_BPW, MCP_SPI_SPEED, MCP_SPI_CSLOW);
 	SolarCellPtr cell = make_shared<SolarCell>();
 	
 	TurretControllerPtr turret = make_shared<TurretController>(mcp, servos);
@@ -33,6 +33,6 @@ int main() {
 	while(1) {
 		usleep(5000);
 	}
-
+	comm->requestClose();
     return 0;	
 }

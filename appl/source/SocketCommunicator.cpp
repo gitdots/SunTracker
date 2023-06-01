@@ -37,13 +37,14 @@ void SocketCommunicator::startPythonBridge() {
     script.append(PY_BRIDGE);
     const string command = script + " " + to_string(DHT_PIN) + " " + to_string(SERVO_0X) + " " + to_string(SERVO_0Y) + " " + SOCKET_NAME + " &";
     int result = system(command.c_str());
-
+    
+    cout << "Trying to connect to bridge" << endl;
     int connResult = connect(socketFd, (struct sockaddr*)&addr, sizeof(addr));
     while(connResult == -1) {
         sleep(1);
         connResult = connect(socketFd, (struct sockaddr*)&addr, sizeof(addr));
     }
-
+    cout << "Connected to bridge" << endl;
 }
 
 void SocketCommunicator::requestClose() {
@@ -74,7 +75,6 @@ pair<float, float> SocketCommunicator::requestTempHum() {
     bool first = true;
     stringstream ss(reqData);
     while(getline(ss, token, ';')) {
-        cout << "Converting: " << token << endl;
         try {
             float value = stof(token);
             if(first) {
@@ -93,7 +93,6 @@ pair<float, float> SocketCommunicator::requestTempHum() {
             cerr << "[SocketCommunicator] Out of range error: " << e.what() << token << endl;
         }
     }
-    cout << "[SocketCommunicator] temp: " << data.first << "; hum: " << data.second << endl;
     return data;
 }
 
@@ -102,5 +101,4 @@ void SocketCommunicator::requestServoMove(string requestCode) {
     if (send(socketFd, requestCode.c_str(), requestCode.size(), 0) == -1) {
         cerr << "[SocketCommunicator] Failed requesting to adjust servos" << endl;
     }
-    lock.unlock();
 }

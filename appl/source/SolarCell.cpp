@@ -98,7 +98,7 @@ void SolarCell::readData() {
         last_current_mA = currentSum_mA / 5;
         last_power_mW = powerSum_mW / 5;
 
-        cout << "Shunt: "<< last_shuntVoltage_mV << " mV\n" << "Voltage: " <<  last_busVoltage_V << " V\n" << "I: " << last_current_mA << " mA\n" << "Power: " << last_power_mW << " mW\n" << endl;
+        // cout << "Shunt: "<< last_shuntVoltage_mV << " mV\n" << "Voltage: " <<  last_busVoltage_V << " V\n" << "I: " << last_current_mA << " mA\n" << "Power: " << last_power_mW << " mW\n" << endl;
 
         if(last_busVoltage_V > 5) {        
             last_shuntVoltage_mV = 0;

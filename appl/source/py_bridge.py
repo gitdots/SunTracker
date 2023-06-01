@@ -25,15 +25,13 @@ class SensorReader:
             self.humidity = (self.dhtDevice).humidity
         except Exception as e:
             self.dhtDevice.exit()
-            # print("[PY] Error reading sensor: ", e)
-        if self.temperature is not None and self.humidity is not None and self.temperature != 0 and self.humidity != 0:
-            print(f"[TH] GOT {self.temperature}; {self.humidity}")
-            # return "{:.2f};{:.2f}".format(self.temperature, self.humidity)
+        if self.temperature is not None and self.humidity is not None: #and self.temperature != 0 and self.humidity != 0:
+            # print(f"[TH] GOT {self.temperature}; {self.humidity}")
             return f"{self.temperature};{self.humidity}"
         else:
             self.temperature = None
             self.humidity = None
-            print(f"[TH] GOT ELSE {self.temperature}; {self.humidity}")
+            # print(f"[TH] GOT ELSE {self.temperature}; {self.humidity}")
             return "999.0;999.0"
         
 class Servomotor:
@@ -46,10 +44,8 @@ class Servomotor:
         self.angle = 0
         
     def setup(self):
-            # Setup GPIO
         GPIO.setup(self.pin, GPIO.OUT)
 
-        # Setup servo
         self.servo = GPIO.PWM(self.pin, self.servo_freq)
         self.servo.start(0)
 
@@ -63,7 +59,6 @@ class Servomotor:
         self.servo.ChangeDutyCycle(0)
         # print(f'moved {self.pin} to {self.angle}')
 
-
 class SocketServer:
     def __init__(self, socket_file_path, sensor_reader):
         self.socket_file_path = socket_file_path
@@ -71,7 +66,7 @@ class SocketServer:
         self.server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         if os.path.exists(socket_file_path):
             os.remove(socket_file_path)
-        self.server_socket.settimeout(0.2)
+        self.server_socket.settimeout(None)
         self.server_socket.bind(socket_file_path)
         self.server_socket.listen(1)
         self.running = True
@@ -94,8 +89,9 @@ class SocketServer:
             elif request_code == '2':
                 self.running = False
                 response = 'Closing connection'
+                self.server_socket.close()
+                break
             else:
-                # response = 'Invalid request code'
                 sleep(.2)
 
             conn.send(response.encode())
@@ -104,12 +100,11 @@ class SocketServer:
         conn.close()
 
     def start(self):
-        while self.running:
+        if self.running:
             conn, addr = self.server_socket.accept()
+            self.server_socket.settimeout(0.2)
             client_thread = threading.Thread(target=self.handle_client, args=(conn,))
             client_thread.start()
-
-        self.server_socket.close()
 
 
 if __name__ == "__main__":
@@ -134,5 +129,3 @@ if __name__ == "__main__":
 
     server = SocketServer(args.socket_name, sensor_reader)
     server.start()
-
-    # print("Done")
