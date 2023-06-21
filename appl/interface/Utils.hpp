@@ -21,8 +21,8 @@
 #define MCP_VREF 3.3
 
 /*  1. Servomotors  */
-#define SERVO_0X 19
-#define SERVO_0Y 4
+#define SERVO_0X 5
+#define SERVO_0Y 19
 
 /*  2. LDRs & Solar Panel*/
 #define LDR_UL_CH 0
