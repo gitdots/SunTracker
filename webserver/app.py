@@ -219,4 +219,4 @@ if __name__ == '__main__':
     #     handle_new_data_thread.stop().join()
     
 
-    app.run(host='192.168.100.21', port=5000, threaded=True)
+    app.run( host='192.168.23.21', port=5000, threaded=True)

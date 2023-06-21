@@ -181,7 +181,9 @@ function updatePolarAreaChart(newData) {
     let lur = newData[1];
     let ldl = newData[2];
     let ldr = newData[3];
-    polarAreaChart.data.datasets[0].data = [lur, ldl, ldr, lul];
+    polarAreaChart.data.datasets[0].data = [lur , ldr, ldl, lul];
+
+    
     polarAreaChart.update();
 }
 

@@ -29,7 +29,6 @@
 #define LDR_UR_CH 1
 #define LDR_DL_CH 2
 #define LDR_DR_CH 3
-#define SOLAR_PANEL_CH 7
 
 /*  3. DHT22    */
 #define DHT_PIN 18

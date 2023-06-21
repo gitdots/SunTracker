@@ -67,14 +67,14 @@ pair<int, int> TurretController::computeNextServoValues() {
     int avgVerticalLeft = (data[LDR_UL_CH] + data[LDR_DL_CH]) / 2;
     int avgVerticalRight = (data[LDR_UR_CH] + data[LDR_DR_CH]) / 2;
 
-    if(avgHorizontalUp - avgHorizontalDown > 15)
+    if(avgHorizontalUp - avgHorizontalDown > 100)
         angles.second -=10;
-    else if ((avgHorizontalDown - avgHorizontalUp > 15))
+    else if ((avgHorizontalDown - avgHorizontalUp > 100))
         angles.second +=10;
 
-    if(avgVerticalLeft - avgVerticalRight > 15)
+    if(avgVerticalLeft - avgVerticalRight > 100)
         angles.first +=10;
-    else if ((avgVerticalRight - avgVerticalLeft > 15))
+    else if ((avgVerticalRight - avgVerticalLeft > 100))
         angles.first -=10;
 
     return angles;

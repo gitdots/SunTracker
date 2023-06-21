@@ -30,7 +30,9 @@ SolarCell::SolarCell() {
                       INA219_CONFIG_BADCRES_12BIT |
                       INA219_CONFIG_SADCRES_12BIT_1S_532US |
                       INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, 13424) < 0) {
+    
+    int computed_config = 20480;
+    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, computed_config) < 0) {
         cerr << "[SolarCell] Failed to write configuration to INA219" << endl;
     }
 }
