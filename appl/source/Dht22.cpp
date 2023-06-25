@@ -34,7 +34,7 @@ void Dht22::requestData() {
 
     while(isRunning) {
         pair<float, float> newData = comm->requestTempHum();
-        if (newData.first > 100.0 and newData.second > 100.0) {
+        if (newData.first > 100.0 && newData.second > 100.0) {
             // cout << "__________Failed sample of new data__________" << endl;
             this_thread::sleep_for(std::chrono::seconds(2));
         }

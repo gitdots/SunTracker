@@ -53,7 +53,7 @@ class Servomotor:
         tmp_angle = self.angle + angle_new
         if tmp_angle < self.servo_max and tmp_angle > self.servo_min:
             self.angle = tmp_angle
-        duty_cycle = self.angle / 18.0 + 2.5
+        duty_cycle = self.angle / 18.0 + 2
         self.servo.ChangeDutyCycle(duty_cycle)
         time.sleep(.2)
         self.servo.ChangeDutyCycle(0)

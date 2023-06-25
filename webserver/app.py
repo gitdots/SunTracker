@@ -1,19 +1,19 @@
 import os
 import socket
 import select
-
-from datetime import datetime, timedelta, date
-import time
-
-from threading import Thread, Event
-import queue
-
 from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import json
 
 app = Flask(__name__)
+
+
+from datetime import datetime, timedelta, date
+import time
+
+from threading import Thread, Event
+import queue
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 DB_PATH_REL = os.path.join(current_dir, '..', 'database', 'db')
@@ -126,7 +126,7 @@ def handle_new_data_thread():
                     first_sample = True
                     data_fields_total = empty_data_fields_total
                     latest_commit_time = datetime.now() # Update the last commit time
-                    # readings = Readings.query.all()
+                    new_data_queue.clear()
                     
                     # print('[handle_new_data_thread] Readings Table: ')                    
                     # for reading in readings:
@@ -218,5 +218,4 @@ if __name__ == '__main__':
     #     new_data_thread.stop().join()
     #     handle_new_data_thread.stop().join()
     
-
-    app.run( host='192.168.23.21', port=5000, threaded=True)
+    app.run(host='0.0.0.0', port=5000, threaded=True)

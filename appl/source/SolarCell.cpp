@@ -12,6 +12,7 @@ extern "C" {
     #include <linux/i2c-dev.h>
     #include <linux/i2c.h>
     #include <i2c/smbus.h>
+    #include <arpa/inet.h>
 }
 
 using namespace std;
@@ -25,15 +26,17 @@ SolarCell::SolarCell() {
         cerr << "[SolarCell] Failed to initialized I2C with address provided." << endl;
     }
 
-    uint16_t config = INA219_CONFIG_BVOLTAGERANGE_16V |
-                      INA219_CONFIG_GAIN_8_320MV |
-                      INA219_CONFIG_BADCRES_12BIT |
-                      INA219_CONFIG_SADCRES_12BIT_1S_532US |
-                      INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
+    current_lsb =  0.04096 / (CALIBRATION * R_SHUNT);
+    power_lsb = 20 * current_lsb;
     
-    int computed_config = 20480;
-    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIG, computed_config) < 0) {
-        cerr << "[SolarCell] Failed to write configuration to INA219" << endl;
+    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CALIBRATION, htons(CALIBRATION)) < 0) {
+        cerr << "[SolarCell] Failed to write calibration to INA219 register" << endl;
+    }
+
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    if (i2c_smbus_write_word_data(deviceFd, INA219_REG_CONFIGURATION, htons(CONFIGURATION)) < 0) {
+        cerr << "[SolarCell] Failed to write configuration to INA219 register" << endl;
     }
 }
 
@@ -76,22 +79,35 @@ void SolarCell::readData() {
         float powerSum_mW = 0;
         
         for (int i = 0; i < 5; ++i) {
-            int16_t raw_shuntVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_SHUNTVOLTAGE);
-            uint16_t shuntVoltage = __bswap_16(raw_shuntVoltage);
-            float shuntVoltage_mV = shuntVoltage * 0.01;
+            // int16_t raw_shuntVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_SHUNTVOLTAGE);
+            // uint16_t shuntVoltage = __bswap_16(raw_shuntVoltage);
+            // float shuntVoltage_mV = shuntVoltage * 0.01;
 
-            int16_t raw_busVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_BUSVOLTAGE);
-            uint16_t busVoltage = __bswap_16(raw_busVoltage) >> 3;
-            float busVoltage_V = busVoltage * 0.004;
+            // int16_t raw_busVoltage = i2c_smbus_read_word_data(deviceFd, INA219_REG_BUSVOLTAGE);
+            // uint16_t busVoltage = __bswap_16(raw_busVoltage) >> 3;
+            // float busVoltage_V = busVoltage * 0.004;
 
-            float current_mA = shuntVoltage_mV / 0.1;  
-            float power_mW = busVoltage_V * current_mA;
+            // float current_mA = shuntVoltage_mV / 0.1;  
+            // float power_mW = busVoltage_V * current_mA;
 
-            shuntVoltageSum_mV += shuntVoltage_mV;
+            // shuntVoltageSum_mV += shuntVoltage_mV;
+            // busVoltageSum_V += busVoltage_V;
+            // currentSum_mA += current_mA;
+            // powerSum_mW += power_mW;
+            
+            uint16_t raw_voltage = ntohs(i2c_smbus_read_word_data(deviceFd, INA219_REG_BUSVOLTAGE));
+            this_thread::sleep_for(chrono::milliseconds(1));
+            uint16_t raw_current = ntohs(i2c_smbus_read_word_data(deviceFd, INA219_REG_CURRENT));
+            this_thread::sleep_for(chrono::milliseconds(1));
+            uint16_t raw_power = ntohs(i2c_smbus_read_word_data(deviceFd, INA219_REG_POWER));
+
+            float busVoltage_V =  (raw_voltage >> 3) * 0.004;
+            float current_mA = (raw_current * current_lsb)*1000;
+            float power_mW = raw_power * power_lsb * 1000;
+
             busVoltageSum_V += busVoltage_V;
             currentSum_mA += current_mA;
             powerSum_mW += power_mW;
-            
             this_thread::sleep_for(chrono::milliseconds(150));
         }
         
@@ -102,12 +118,12 @@ void SolarCell::readData() {
 
         // cout << "Shunt: "<< last_shuntVoltage_mV << " mV\n" << "Voltage: " <<  last_busVoltage_V << " V\n" << "I: " << last_current_mA << " mA\n" << "Power: " << last_power_mW << " mW\n" << endl;
 
-        if(last_busVoltage_V > 5) {        
-            last_shuntVoltage_mV = 0;
-            last_busVoltage_V = 0;
-            last_current_mA = 0;
-            last_power_mW = 0;
-        }
+        // if(last_busVoltage_V > 5) {        
+        //     last_shuntVoltage_mV = 0;
+        //     last_busVoltage_V = 0;
+        //     last_current_mA = 0;
+        //     last_power_mW = 0;
+        // }
 
         this_thread::sleep_for(chrono::seconds(1));
     }
