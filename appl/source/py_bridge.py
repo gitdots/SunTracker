@@ -1,10 +1,12 @@
 import argparse
 import socket
 import threading as threading
+from urllib import request
 import board
 import adafruit_dht
 import time
 import os
+import re
 
 import RPi.GPIO as GPIO
 from time import sleep
@@ -51,13 +53,12 @@ class Servomotor:
 
     def move(self, angle_new):
         tmp_angle = self.angle + angle_new
-        if tmp_angle < self.servo_max and tmp_angle > self.servo_min:
+        if self.angle != tmp_angle and tmp_angle < self.servo_max and tmp_angle > self.servo_min:
             self.angle = tmp_angle
-        duty_cycle = self.angle / 18.0 + 2
-        self.servo.ChangeDutyCycle(duty_cycle)
-        time.sleep(.2)
-        self.servo.ChangeDutyCycle(0)
-        # print(f'moved {self.pin} to {self.angle}')
+            duty_cycle = self.angle / 18.0 + 2
+            self.servo.ChangeDutyCycle(duty_cycle)
+            time.sleep(.2)
+            self.servo.ChangeDutyCycle(0)
 
 class SocketServer:
     def __init__(self, socket_file_path, sensor_reader):
@@ -70,7 +71,7 @@ class SocketServer:
         self.server_socket.bind(socket_file_path)
         self.server_socket.listen(1)
         self.running = True
-
+        self.servo_pattern = r"{(-?\d+);(-?\d+)}"
 
     def handle_client(self, conn):
         while self.running:
@@ -79,13 +80,18 @@ class SocketServer:
                 break
 
             request_code = data.decode().strip()
-            if '-' in request_code:
-                anglex, angley = request_code.split(';')
+            got_servo = re.findall(self.servo_pattern, request_code)
+            if got_servo:
+                for angle in got_servo:
+                    anglex, angley = angle
                 servox.move(int(anglex))
                 servoy.move(int(angley))
+                response = f'{servox.angle};{servoy.angle}'
+                conn.send(response.encode())
 
             if request_code == 'th':
                 response = self.sensor_reader.get_latest_data()
+                conn.send(response.encode())
             elif request_code == '2':
                 self.running = False
                 response = 'Closing connection'
@@ -93,8 +99,6 @@ class SocketServer:
                 break
             else:
                 sleep(.2)
-
-            conn.send(response.encode())
         
         GPIO.cleanup()
         conn.close()
@@ -120,10 +124,10 @@ if __name__ == "__main__":
 
     servox = Servomotor(args.pinx)
     servox.setup()
-    servox.move(0)
+    servox.move(90)
     servoy = Servomotor(args.piny)
     servoy.setup()
-    servoy.move(0)
+    servoy.move(90)
 
     sensor_reader = SensorReader(args.pinTh)
 

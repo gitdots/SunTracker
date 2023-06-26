@@ -67,7 +67,8 @@ pair<float, float> SocketCommunicator::requestTempHum() {
     char buff[1024];
     int bytes = recv(socketFd, buff, sizeof(buff), 0);
     lock.unlock();
-    
+    m_cv.notify_all();
+
     string reqData(buff, bytes);
     pair<float,float> data;
     
@@ -96,9 +97,41 @@ pair<float, float> SocketCommunicator::requestTempHum() {
     return data;
 }
 
-void SocketCommunicator::requestServoMove(string requestCode) {
+pair<int,int> SocketCommunicator::requestServoMove(string requestCode) {
     unique_lock<mutex> lock(m);
     if (send(socketFd, requestCode.c_str(), requestCode.size(), 0) == -1) {
         cerr << "[SocketCommunicator] Failed requesting to adjust servos" << endl;
     }
+    char buff[1024];
+    int bytes = recv(socketFd, buff, sizeof(buff), 0);
+    lock.unlock();
+    m_cv.notify_all();
+
+    string reqData(buff, bytes);
+    pair<int,int> angles;
+    
+    string token;
+    bool first = true;
+    stringstream ss(reqData);
+    
+    while(getline(ss, token, ';')) {
+        try {
+            int value = stoi(token);
+            if(first) {
+                first = false;
+                angles.first = value;
+            }
+            else {
+                angles.second = value;
+                break;
+            }
+        }
+        catch(const std::invalid_argument& e) {
+            cerr << "[SocketCommunicator] Invalid argument error: " << e.what() << token << endl;
+        }
+        catch(const std::out_of_range& e) {
+            cerr << "[SocketCommunicator] Out of range error: " << e.what() << token << endl;
+        }
+    }
+    return angles;
 }

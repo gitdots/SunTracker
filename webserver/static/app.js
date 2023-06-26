@@ -66,11 +66,23 @@ function initialize() {
                     type: 'linear',
                     position: 'bottom',
                     min: -100,
-                    max: 100
+                    max: 100,
+                    ticks: {
+                        stepSize:25
+                    },
+                    grid: {
+                        display: true
+                    }
                 },
                 y: {
-                    min: -10,
-                    max: 100
+                    min: -100,
+                    max: 100,
+                    ticks: {
+                        stepSize:25
+                    },
+                    grid: {
+                        display: true
+                    }
                 }
             }
         }

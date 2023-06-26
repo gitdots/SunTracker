@@ -1,10 +1,11 @@
 #include "Servomotor.hpp"
 #include "Utils.hpp"
 
-#include <iostream>
+#include <utility>
 #include <stdlib.h>
 #include <unistd.h>
 #include <chrono>
+#include <string>
 
 using namespace std;
 
@@ -12,8 +13,8 @@ Servomotor::Servomotor(int _pinx, int _piny, shared_ptr<SocketCommunicator> _com
                         pinx(_pinx), piny(_piny), comm(_comm) {
 
     runningMode = MODE_AUTOMATIC;
-    lastAnglex = 0;
-    lastAngley = 0;
+    lastAnglex = 90;
+    lastAngley = 90;
 }
 
 Servomotor::~Servomotor() {
@@ -22,10 +23,10 @@ Servomotor::~Servomotor() {
 
 void Servomotor::setAngle(int pinx, int anglex, int piny, int angley) {
     unique_lock<mutex> lock_(tm);
-    if(anglex != 0 && angley != 0) {
-        string reqMessage = to_string(anglex) + ";" + to_string(angley);
-        comm->requestServoMove(reqMessage);
-    }
+    string reqMessage = "{" + to_string(anglex) + ";" + to_string(angley) + "}";
+    pair<int, int> angles = comm->requestServoMove(reqMessage);
+    lastAnglex = angles.first - 90;
+    lastAngley = angles.second - 90;
 }
 
 void Servomotor::setMode(ServomotorMode mode) {

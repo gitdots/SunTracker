@@ -1,6 +1,6 @@
 #include "TurretController.hpp"
 #include "Utils.hpp"
-
+#include <iostream>
 using namespace std;
 
 TurretController::TurretController(Mcp3008Ptr _mcp, ServomotorPtr _servos):
@@ -67,15 +67,15 @@ pair<int, int> TurretController::computeNextServoValues() {
     int avgVerticalLeft = (data[LDR_UL_CH] + data[LDR_DL_CH]) / 2;
     int avgVerticalRight = (data[LDR_UR_CH] + data[LDR_DR_CH]) / 2;
 
-    if(avgHorizontalUp - avgHorizontalDown > 100)
-        angles.second -=10;
-    else if ((avgHorizontalDown - avgHorizontalUp > 100))
+    if(avgHorizontalUp - avgHorizontalDown > 50)
         angles.second +=10;
+    else if ((avgHorizontalDown - avgHorizontalUp > 50))
+        angles.second -=10;
 
-    if(avgVerticalLeft - avgVerticalRight > 100)
-        angles.first +=10;
-    else if ((avgVerticalRight - avgVerticalLeft > 100))
+    if(avgVerticalLeft - avgVerticalRight > 50)
         angles.first -=10;
+    else if ((avgVerticalRight - avgVerticalLeft > 50))
+        angles.first +=10;
 
     return angles;
 }
